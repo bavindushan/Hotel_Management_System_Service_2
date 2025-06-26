@@ -5,62 +5,60 @@ import edu.esoft.com.entity.Role;
 import edu.esoft.com.repository.RoleRepository;
 import edu.esoft.com.service.RoleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RoleServiceImpl implements RoleService {
-    private final RoleRepository roleRepository;
+
+    private final RoleRepository repo;
+    private final ModelMapper   mapper;
 
     @Override
-    public RoleDTO createRole(RoleDTO roleDTO) {
-        Role role = new Role();
-        BeanUtils.copyProperties(roleDTO, role);
-        Role saved = roleRepository.save(role);
-        RoleDTO result = new RoleDTO();
-        BeanUtils.copyProperties(saved, result);
-        return result;
-    }
+    public RoleDTO createRole(RoleDTO dto) {
 
-    @Override
-    public RoleDTO getRoleById(Integer id) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-        RoleDTO dto = new RoleDTO();
-        BeanUtils.copyProperties(role, dto);
-        return dto;
+        if (repo.existsByRoleName(dto.getRoleName())) {
+            throw new IllegalArgumentException("Role name already exists");
+        }
+
+        Role saved = repo.save(mapper.map(dto, Role.class));
+        return mapper.map(saved, RoleDTO.class);
     }
 
     @Override
     public List<RoleDTO> getAllRoles() {
-        return roleRepository.findAll()
+        return repo.findAll()
                 .stream()
-                .map(role -> {
-                    RoleDTO dto = new RoleDTO();
-                    BeanUtils.copyProperties(role, dto);
-                    return dto;
-                })
-                .collect(Collectors.toList());
+                .map(role -> mapper.map(role, RoleDTO.class))
+                .toList();
     }
 
     @Override
-    public RoleDTO updateRole(Integer id, RoleDTO roleDTO) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-        role.setRoleName(roleDTO.getRoleName());
-        role.setDescription(roleDTO.getDescription());
-        Role updated = roleRepository.save(role);
-        RoleDTO result = new RoleDTO();
-        BeanUtils.copyProperties(updated, result);
-        return result;
+    public RoleDTO getRoleById(Integer id) {
+        Role role = repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        return mapper.map(role, RoleDTO.class);
+    }
+
+    @Override
+    public RoleDTO updateRole(Integer id, RoleDTO dto) {
+        Role role = repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+
+        role.setRoleName(dto.getRoleName());
+        role.setDescription(dto.getDescription());
+
+        Role updated = repo.save(role);
+        return mapper.map(updated, RoleDTO.class);
     }
 
     @Override
     public void deleteRole(Integer id) {
-        roleRepository.deleteById(id);
+        repo.deleteById(id);
     }
 }
