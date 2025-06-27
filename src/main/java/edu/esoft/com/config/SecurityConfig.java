@@ -51,15 +51,18 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/",                         // root redirect
+                                "/",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
-                                "/v3/api-docs",              //  ← add this
-                                "/v3/api-docs.yaml",         //  ← and this (optional)
+                                "/v3/api-docs",
+                                "/v3/api-docs.yaml",
                                 "/v3/api-docs/swagger-config",
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/favicon.ico"
+//                                "api/roles",
+//                                "api/users",
+//                                "api/branches"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
