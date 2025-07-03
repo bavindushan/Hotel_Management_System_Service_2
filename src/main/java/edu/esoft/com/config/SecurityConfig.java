@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 "/favicon.ico"
                         ).permitAll()
                         .requestMatchers("/api/roles/**", "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/branches/**").hasAnyRole("ADMIN", "RECEPTIONIST")
+                        .requestMatchers("/api/branches/**","/api/customers/**","/api/reservations/**").hasAnyRole("ADMIN", "RECEPTIONIST")
                         .anyRequest().authenticated()
                 );
 

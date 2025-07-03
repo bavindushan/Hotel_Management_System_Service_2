@@ -36,7 +36,7 @@ public class JwtUtils {
                 .claim("role",  role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                // key first, then algorithm (SecureMacAlgorithm) – works in 0.12.x
+                // key first, then algorithm (SecureMacAlgorithm)
                 .signWith(signingKey, Jwts.SIG.HS256)
                 .compact();
     }
